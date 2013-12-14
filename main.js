@@ -103,7 +103,7 @@ $(document).ready(function () {
             physicsFunc();
             break;
 	    }
-	    setTimeout(mainloop, 10);
+	    setTimeout(mainloop, 100);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -131,29 +131,27 @@ $(document).ready(function () {
 		
 		var w = imgDt.width;
 		var h = imgDt.height;
-		var r,g,b,cnt;
-		for(var i=0; i<w; i++){
-			for(var j=0; j<h; j++){
+		var r = [0,0,0];
+		var g = [0,0,0];
+		var b = [0,0,0];
 
-				r=[255, 255, 255];
-				g=[255, 255, 255];
-				b=[255, 255, 255];
+		var imgDtBuf = numeric.linspace(0,0,w*h*4);
 
-				if(i!=0) {
-					r[0]=imgDt.data[((i-1)*w+j)*4+0];
-					g[0]=imgDt.data[((i-1)*w+j)*4+1];
-					b[0]=imgDt.data[((i-1)*w+j)*4+2];
-				}
+		for(var i=1; i<w-1; i++){
+			for(var j=1; j<h-1; j++){
+
+				r[0]=imgDt.data[((i-1)*w+j)*4+0];
+				g[0]=imgDt.data[((i-1)*w+j)*4+1];
+				b[0]=imgDt.data[((i-1)*w+j)*4+2];
 
 				r[1]=imgDt.data[(i*w+j)*4+0];
 				g[1]=imgDt.data[(i*w+j)*4+1];
 				b[1]=imgDt.data[(i*w+j)*4+2];
 
-				if(i!=w-1) {
-					r[2]=imgDt.data[((i+1)*w+j)*4+0];
-					g[2]=imgDt.data[((i+1)*w+j)*4+1];
-					b[2]=imgDt.data[((i+1)*w+j)*4+2];
-				}
+				r[2]=imgDt.data[((i+1)*w+j)*4+0];
+				g[2]=imgDt.data[((i+1)*w+j)*4+1];
+				b[2]=imgDt.data[((i+1)*w+j)*4+2];
+
 				/*
 				if(j!=0) {
 					r+=imgDt.data[(i*w+j-1)*4+0];
@@ -168,13 +166,26 @@ $(document).ready(function () {
 					cnt++;
 				}
 				*/
-				var k=0.9;
-				imgDt.data[(i*w+j)*4+0]=r[1]+k*(r[0]-2*r[1]+r[2]);
-				imgDt.data[(i*w+j)*4+1]=g[1]+k*(g[0]-2*g[1]+g[2]);
-				imgDt.data[(i*w+j)*4+2]=b[1]+k*(b[0]-2*b[1]+b[2]);
+
+				var lambda=0.5;
+				imgDtBuf[(i*w+j)*4+0]=r[1]+lambda*(r[0]-2*r[1]+r[2]);
+				imgDtBuf[(i*w+j)*4+1]=g[1]+lambda*(g[0]-2*g[1]+g[2]);
+				imgDtBuf[(i*w+j)*4+2]=b[1]+lambda*(b[0]-2*b[1]+b[2]);
 			}
 		}
+
+		var n;
+		for(var i=1; i<w-1; i++) {
+			for(var j=1; j<h-1; j++) {
+				for(var k=0; k<3; k++) {
+					n=(i*w+j)*4+k;
+					imgDt.data[n]=imgDtBuf[n];
+				}
+			}
+		}
+
 		context.putImageData(imgDt, 0, 0);
+		console.log("hey");
 	}
 		
 	//////////////////////////////////////////////////////////
